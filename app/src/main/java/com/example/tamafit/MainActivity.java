@@ -57,30 +57,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     GoogleSignInOptions gso;
     GoogleSignInClient mGoogleSignInClient;
 
-    // Function to request and check permission for google fit activity data collection
-    // source: https://www.geeksforgeeks.org/android-how-to-request-permissions-in-android-application/
-    public void checkPermission(String permission, int requestCode)
-    {
-        // Checking if permission is not granted
-        if (ContextCompat.checkSelfPermission(
-                MainActivity.this,
-                permission)
-                == PackageManager.PERMISSION_DENIED) {
-            // if not granted, request permissions
-            ActivityCompat
-                    .requestPermissions(
-                            MainActivity.this,
-                            new String[] { permission },
-                            requestCode);
-        }
-        else {
-            Toast.makeText(MainActivity.this,
-                    "Permission already granted",
-                    Toast.LENGTH_SHORT)
-                    .show();
-        }
-    }
-
     //signInButton.setSize(SignInButton.SIZE_STANDARD);
 
     //SignInButton ib1 = (SignInButton)findViewById(R.id.sign_in_button).setOnClickListener(this);
@@ -127,6 +103,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
+    }
+
+    // Function to request and check permission for google fit activity data collection
+    // source: https://www.geeksforgeeks.org/android-how-to-request-permissions-in-android-application/
+    public void checkPermission(String permission, int requestCode)
+    {
+        // Checking if permission is not granted
+        if (ContextCompat.checkSelfPermission(
+                MainActivity.this,
+                permission)
+                == PackageManager.PERMISSION_DENIED) {
+            // if not granted, request permissions
+            ActivityCompat
+                    .requestPermissions(
+                            MainActivity.this,
+                            new String[] { permission },
+                            requestCode);
+        }
+        else {
+            Toast.makeText(MainActivity.this,
+                    "Permission already granted",
+                    Toast.LENGTH_SHORT)
+                    .show();
+        }
     }
 
     // This function is called when the user accepts or decline the permission.
