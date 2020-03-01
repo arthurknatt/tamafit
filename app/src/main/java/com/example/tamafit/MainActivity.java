@@ -5,6 +5,9 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.fitness.FitnessOptions;
+import com.google.android.gms.fitness.data.DataType;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -18,18 +21,15 @@ import androidx.core.content.ContextCompat;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Button;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
-
-    // Defining Buttons
-    private Button activity_button;
 
     // Defining Permission codes.
     // We can give any value
     // but unique for each permission.
     private static final int ACTIVITY_RECOGNITION_PERMISSION_CODE = 100;
+    private static final int REQUEST_OAUTH_REQUEST_CODE = 1;
 
     // Function to request and check permission for google fit activity data collection
     // source: https://www.geeksforgeeks.org/android-how-to-request-permissions-in-android-application/
@@ -102,19 +102,38 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        // This method sets up our custom logger, which will print all log messages to the device
+        // screen, as well as to adb logcat.
+        // src: https://github.com/googlearchive/android-fit/blob/master/BasicRecordingApi/app/
+        //      src/main/java/com/google/android/gms/fit/samples/basicrecordingapi/MainActivity.java
+
+        FitnessOptions fitnessOptions =
+                FitnessOptions.builder().addDataType(DataType.TYPE_ACTIVITY_SAMPLES).build();
+
+        // Check if the user has permissions to talk to Fitness APIs, otherwise authenticate the
+        // user and request required permissions.
+        if (!GoogleSignIn.hasPermissions(GoogleSignIn.getLastSignedInAccount(this), fitnessOptions)) {
+            GoogleSignIn.requestPermissions(
+                    this,
+                    REQUEST_OAUTH_REQUEST_CODE,
+                    GoogleSignIn.getLastSignedInAccount(this),
+                    fitnessOptions);
+
+
+            Toolbar toolbar = findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
+
+            FloatingActionButton fab = findViewById(R.id.fab);
+            fab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                }
+            });
+        }
     }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
