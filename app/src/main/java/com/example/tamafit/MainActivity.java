@@ -2,10 +2,20 @@ package com.example.tamafit;
 
 import android.os.Bundle;
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.fitness.FitnessOptions;
+import com.google.android.gms.fitness.data.DataType;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -40,6 +50,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
 import com.google.android.gms.common.SignInButton;
 
+import android.widget.Toast;
+
 import com.google.android.gms.fitness.Fitness;
 import com.google.android.gms.fitness.FitnessActivities;
 import com.google.android.gms.fitness.FitnessOptions;
@@ -58,21 +70,14 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 
-
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
-
-
-    GoogleSignInOptions gso;
-
-    GoogleSignInClient mGoogleSignInClient;
-
-    // Defining Buttons
-    Button activity_button;
-
     // Defining Permission codes.
     // We can give any value
     // but unique for each permission.
     private static final int ACTIVITY_RECOGNITION_PERMISSION_CODE = 100;
+    private static final int REQUEST_OAUTH_REQUEST_CODE = 1;
+    GoogleSignInOptions gso;
+    GoogleSignInClient mGoogleSignInClient;
 
     // Function to request and check permission for google fit activity data collection
     // source: https://www.geeksforgeeks.org/android-how-to-request-permissions-in-android-application/
@@ -197,7 +202,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     // source: https://www.geeksforgeeks.org/android-how-to-request-permissions-in-android-application/
     public void checkPermission(String permission, int requestCode)
     {
-
         // Checking if permission is not granted
         if (ContextCompat.checkSelfPermission(
                 MainActivity.this,
@@ -216,6 +220,54 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Toast.LENGTH_SHORT)
                     .show();
         }
+    }
+
+    //signInButton.setSize(SignInButton.SIZE_STANDARD);
+
+    //SignInButton ib1 = (SignInButton)findViewById(R.id.sign_in_button).setOnClickListener(this);
+    static final int RC_SIGN_IN = 1;
+
+    @RequiresApi(api = Build.VERSION_CODES.Q)
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+
+        // check permissions on startup
+        checkPermission(Manifest.permission.ACTIVITY_RECOGNITION,
+                ACTIVITY_RECOGNITION_PERMISSION_CODE);
+
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        SignInButton signInButton = (SignInButton) findViewById(R.id.sign_in_button);
+        //Configure sign-in to request the user's ID, email address, and basic
+        //// profile. ID and basic profile are included in DEFAULT_SIGN_IN.
+
+        gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+
+
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+
+
+        signInButton.setOnClickListener(this);
+
+
+        //// Build a GoogleSignInClient with the options specified by gso.
+
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        FloatingActionButton fab = findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
+
     }
 
     // This function is called when the user accepts or decline the permission.
@@ -255,6 +307,65 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
+    @Override
+    public void onClick(View view) {
+
+
+        Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show();
+
+
+
+        if (view.getId() == R.id.sign_in_button){
+            //System.out.print("clicked!!!!");
+            signIn();
+
+        }
+
+        /*
+        switch (view.getId() == ) {
+            case R.id.sign_in_button:
+                signIn();
+                break;
+            // ...
+        }
+
+         */
+
+
+    }
+
+    private void signIn() {
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent, RC_SIGN_IN);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
+        if (requestCode == RC_SIGN_IN) {
+            // The Task returned from this call is always completed, no need to attach
+            // a listener.
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            handleSignInResult(task);
+        }
+    }
+
+    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
+        try {
+            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+
+            // Signed in successfully, show authenticated UI.
+            System.out.println("YEEET SUCCESSS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+        } catch (ApiException e) {
+            // The ApiException status code indicates the detailed failure reason.
+            // Please refer to the GoogleSignInStatusCodes class reference for more information.
+            Log.w("replace with TAG" , "signInResult:failed code=" + e.getStatusCode());
+            System.out.println("wow did not work#####################\n");
+        }
+    }
 
 
 
