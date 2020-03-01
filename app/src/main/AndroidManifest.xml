@@ -3,8 +3,8 @@
     package="com.example.tamafit">
 
     <!--specifying permissions for activity data collection,
-            for devices running Android 6.0 (API level 23) or higher
-            (run time permissions)-->
+        for devices running Android 6.0 (API level 23) or higher
+        (run time permissions)-->
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION"/>
 
     <application
