@@ -1,21 +1,105 @@
 package com.example.tamafit;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
+    // Defining Buttons
+    private Button activity_button;
+
+    // Defining Permission codes.
+    // We can give any value
+    // but unique for each permission.
+    private static final int ACTIVITY_RECOGNITION_PERMISSION_CODE = 100;
+
+    // Function to request and check permission for google fit activity data collection
+    // source: https://www.geeksforgeeks.org/android-how-to-request-permissions-in-android-application/
+    public void checkPermission(String permission, int requestCode)
+    {
+
+        // Checking if permission is not granted
+        if (ContextCompat.checkSelfPermission(
+                MainActivity.this,
+                permission)
+                == PackageManager.PERMISSION_DENIED) {
+            // if not granted, request permissions
+            ActivityCompat
+                    .requestPermissions(
+                            MainActivity.this,
+                            new String[] { permission },
+                            requestCode);
+        }
+        else {
+            Toast.makeText(MainActivity.this,
+                            "Permission already granted",
+                            Toast.LENGTH_SHORT)
+                    .show();
+        }
+    }
+
+    // This function is called when the user accepts or decline the permission.
+    // Request Code is used to check which permission called this function.
+    // This request code is provided when the user is prompt for permission.
+    // source: https://www.geeksforgeeks.org/android-how-to-request-permissions-in-android-application/
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults)
+    {
+        super.onRequestPermissionsResult(requestCode,
+                        permissions,
+                        grantResults);
+
+        if (requestCode == ACTIVITY_RECOGNITION_PERMISSION_CODE) {
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(MainActivity.this,
+                        "Activity Recognition Permission Granted",
+                        Toast.LENGTH_SHORT)
+                        .show();
+            }
+            else {
+                Toast.makeText(MainActivity.this,
+                        "Activity Recognition Permission Denied",
+                        Toast.LENGTH_SHORT)
+                        .show();
+            }
+        // if the request code isn't recognized
+        } else {
+            Toast.makeText(MainActivity.this,
+                    "Err: Request Code not recognized",
+                    Toast.LENGTH_SHORT)
+                    .show();
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        // check permissions on startup
+        checkPermission(Manifest.permission.ACTIVITY_RECOGNITION,
+                ACTIVITY_RECOGNITION_PERMISSION_CODE);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
